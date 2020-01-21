@@ -3,6 +3,9 @@ uuid = "002edbf4-e61d-4c32-9dab-1e28cdfc52fa"
 authors = ["Pierre Navaro <pierre.navaro@math.cnrs.fr>"]
 version = "0.1.0"
 
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
 [compat]
 julia = "1"
 

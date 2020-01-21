@@ -2,5 +2,11 @@ using ExponentialTaylor
 using Test
 
 @testset "ExponentialTaylor.jl" begin
-    # Write your own tests here.
+
+A = rand( 5, 5)
+
+@show expm2( A)
+
+@test true
+
 end
