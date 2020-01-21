@@ -1,0 +1,13 @@
+name = "ExponentialTaylor"
+uuid = "002edbf4-e61d-4c32-9dab-1e28cdfc52fa"
+authors = ["Pierre Navaro <pierre.navaro@math.cnrs.fr>"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
