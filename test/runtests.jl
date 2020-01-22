@@ -1,7 +1,7 @@
-using ExponentialTaylor
+using TaylorExponentialMatrix
 using Test
 
-@testset "ExponentialTaylor.jl" begin
+@testset "TaylorExponentialMatrix.jl" begin
 
 A = rand( 5, 5)
 
