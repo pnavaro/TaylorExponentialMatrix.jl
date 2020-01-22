@@ -5,8 +5,8 @@ using Test
 
 A = rand( 5, 5)
 
-@show expm2( A)
+@show expm2(A) .- exp(A)
 
-@test true
+@test all( expm2(A) .≈ exp(A))
 
 end
