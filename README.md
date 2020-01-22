@@ -1,4 +1,4 @@
-# ExponentialTaylor.jl
+# TaylorExponentialMatrix.jl
 
 This is a julia translation of the matlab code available [here](http://www.gicas.uji.es/Research/MatrixExp.html).
 
@@ -12,7 +12,7 @@ and **Fernando Casas** (IMAC and Departament de Matemàtiques, Universitat Jaume
 ```julia
 julia> using Pkg
 
-julia> pkg" add https://github.com/pnavaro/ExponentialTaylor.jl"
+julia> pkg" add https://github.com/pnavaro/TaylorExponentialMatrix.jl"
 
 julia> A = rand(5,5)
 5×5 Array{Float64,2}:
@@ -30,7 +30,7 @@ julia> exp(A) # version from LinearAlgebra
  1.04361   1.20838   1.88584   2.99255   0.655514
  0.848529  0.454553  0.838875  0.638862  2.02498
 
-julia> using ExponentialTaylor
+julia> using TaylorExponentialMatrix
 
 julia> expm2(A) # Version using Taylor polynomial aproximation
 number_of_scalings = s = 2
