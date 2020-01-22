@@ -1,6 +1,6 @@
 # ExponentialTaylor.jl
 
-This is julia translation of the matlab code available [here](http://www.gicas.uji.es/Research/MatrixExp.html).
+This is a julia translation of the matlab code available [here](http://www.gicas.uji.es/Research/MatrixExp.html).
 
 **Computing the Matrix Exponential with an Optimized Taylor Polynomial Approximation**
 
