@@ -1,4 +1,4 @@
-module ExponentialTaylor
+module TaylorExponentialMatrix
 
 include("expm2.jl")
 
