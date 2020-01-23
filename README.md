@@ -44,3 +44,9 @@ order = m_vals[method_selector] = 18
  0.848529  0.454553  0.838875  0.638862  2.02498
 
 ```
+
+# See also
+
+- [ExponentialUtilities.jl](https://github.com/JuliaDiffEq/ExponentialUtilities.jl): Utility functions used by the exponential integrators in [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl)
+- [Expokit.jl](https://github.com/acroy/Expokit.jl): Julia implementation of EXPOKIT routines
+- [ExpMV.jl](https://github.com/matteoacrossi/ExpmV.jl): Julia package to compute the result of `expm(t*A)*v` when A is a sparse matrix, without computing `expm(t*A)`.
