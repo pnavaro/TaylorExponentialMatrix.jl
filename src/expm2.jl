@@ -69,7 +69,6 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
     """
     function taylor_approximant_of_degree(order)
 
-        Inn = Matrix{T}(I, n, n)
         if (order >= 2)
             A2 = A * A
         end
@@ -79,15 +78,15 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
 
         if order == 1
 
-            E = Inn + A
+            E = I + A
 
         elseif order == 2
 
-            E = Inn + A + A2 / 2
+            E = I + A + A2 / 2
 
         elseif order == 4
 
-            E = Inn + A + A2 * (Inn / 2 + A / 6 + A2 / 24)
+            E = I + A + A2 * (I / 2 + A / 6 + A2 / 24)
 
         elseif order == 8
 
@@ -127,10 +126,10 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
             a33 = 0.0107862779315792425026320640108
             a34 = -0.00675951846863086359778560766482
 
-            q31 = a01 * Inn + a11 * A + a21 * A2 + a31 * A3
-            q32 = a02 * Inn + a12 * A + a22 * A2 + a32 * A3
-            q33 = a03 * Inn + a13 * A + a23 * A2 + a33 * A3
-            q34 = a04 * Inn + a14 * A + a24 * A2 + a34 * A3
+            q31 = a01 * I + a11 * A + a21 * A2 + a31 * A3
+            q32 = a02 * I + a12 * A + a22 * A2 + a32 * A3
+            q33 = a03 * I + a13 * A + a23 * A2 + a33 * A3
+            q34 = a04 * I + a14 * A + a24 * A2 + a34 * A3
             # Matrix products
             q61 = q33 + q34 * q34
             E = (q31 + (q32 + q61) * q61)
@@ -165,11 +164,11 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
 
             # Matrix products
             A6 = A3 * A3
-            q31 = a01 * Inn + a11 * A + a21 * A2 + a31 * A3
-            q61 = (b01 * Inn + b11 * A + b21 * A2 + b31 * A3 + b61 * A6)
-            q62 = (b02 * Inn + b12 * A + b22 * A2 + b32 * A3 + b62 * A6)
-            q63 = (b03 * Inn + b13 * A + b23 * A2 + b33 * A3 + b63 * A6)
-            q64 = (b04 * Inn + b14 * A + b24 * A2 + b34 * A3 + b64 * A6)
+            q31 = a01 * I + a11 * A + a21 * A2 + a31 * A3
+            q61 = (b01 * I + b11 * A + b21 * A2 + b31 * A3 + b61 * A6)
+            q62 = (b02 * I + b12 * A + b22 * A2 + b32 * A3 + b62 * A6)
+            q63 = (b03 * I + b13 * A + b23 * A2 + b33 * A3 + b63 * A6)
+            q64 = (b04 * I + b14 * A + b24 * A2 + b34 * A3 + b64 * A6)
             q91 = q31 * q64 + q63
             q18 = q61 + (q62 + q91) * q91
             E = q18
