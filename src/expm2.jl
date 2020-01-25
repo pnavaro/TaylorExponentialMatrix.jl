@@ -23,45 +23,37 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
 
     n = checksquare(A)
 
+    m_vals = [1 2 4 8 12 18]
+
     """
         EXPMCHK Check the class of input A and
         initialize M_VALS and THETA accordingly.
     """
-    function expmchk()
-
-        classA = eltype(A)
-
-        if classA == Float64
-            m_vals = [1 2 4 8 12 18]
-            # theta_m for m=1:18.
-            theta = [
-                2.220446049250313e-16  # m_vals = 1
-                2.580956802971767e-08  # m_vals = 2
-                3.397168839976962e-04  # m_vals = 4
-                4.991228871115323e-02  # m_vals = 8
-                2.996158913811580e-01  # m_vals = 12
-                1.090863719290036e+00  # m_vals = 18
-            ]
-        elseif classA == Float32
-            m_vals = [1 2 4 8 12 18]
-              # theta_m for m=1:7.
-            theta = [
-                1.192092800768788e-7   # m_vals = 1
-                5.978858893805233e-04  # m_vals = 2 
-                5.116619363445086e-02  # m_vals = 4
-                5.800524627688768e-01  # m_vals = 8
-                       #7.795113374358031e-01
-                       #9.951840790004457e-01
-                       #1.223479542424143e+00
-                1.461661507209034  # m_vals = 12
-                3.010066362817634
-            ]# m_vals = 18
-        else
-            @error "wrong element type"
-        end
-
-        m_vals, theta, classA
-
+    if T == Float64
+        # theta_m for m=1:18.
+        theta = T[
+            2.220446049250313e-16  # m_vals = 1
+            2.580956802971767e-08  # m_vals = 2
+            3.397168839976962e-04  # m_vals = 4
+            4.991228871115323e-02  # m_vals = 8
+            2.996158913811580e-01  # m_vals = 12
+            1.090863719290036e+00  # m_vals = 18
+        ]
+    elseif T == Float32
+          # theta_m for m=1:7.
+        theta = T[
+            1.192092800768788e-7   # m_vals = 1
+            5.978858893805233e-04  # m_vals = 2 
+            5.116619363445086e-02  # m_vals = 4
+            5.800524627688768e-01  # m_vals = 8
+           #7.795113374358031e-01
+           #9.951840790004457e-01
+           #1.223479542424143e+00
+            1.461661507209034      # m_vals = 12
+            3.010066362817634
+        ]# m_vals = 18
+    else
+        @error "wrong element type"
     end
 
     """
@@ -69,12 +61,8 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
     """
     function taylor_approximant_of_degree(order)
 
-        if (order >= 2)
-            A2 = A * A
-        end
-        if (order > 8)
-            A3 = A * A2
-        end
+        order >= 2 && ( A2 = A * A )
+        order > 8  && ( A3 = A * A2)
 
         if order == 1
 
@@ -179,12 +167,9 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
 
     end
 
-    m_vals, theta, classA = expmchk() # Initialization
-
     normA = opnorm(A, 1)
 
-    if normA <= theta[end]
-        # no scaling and squaring is required.
+    if normA <= theta[end] # no scaling and squaring is required.
         s = 0
         for method_selector = 1:length(m_vals)
             if normA <= theta[method_selector]
