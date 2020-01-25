@@ -204,10 +204,6 @@ function expm2(A::StridedMatrix{T}) where {T<:BlasFloat}
         end
     end
 
-    @show number_of_scalings = s
-    @show cost = s + method_selector - 1
-    @show order = m_vals[method_selector]
-
     F
 
 end
