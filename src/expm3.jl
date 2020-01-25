@@ -26,48 +26,40 @@ function expm3(A::StridedMatrix{T}) where {T<:BlasFloat}
     """
     function expm_params(A)
     
-        function getThetaSet(A)
+        m_vals = [1 2 4 8 12 18]
+        if T == Float64
         
-            m_vals = [1 2 4 8 12 18]
-            if T == Float64
+            # theta_m for m=2:18.
+            theta = T[
+                2.220446049250313e-16  # m_vals = 1
+                2.580956802971767e-08  # m_vals = 2
+                3.397168839976962e-04  # m_vals = 4
+                4.991228871115323e-02  # m_vals = 8
+                2.996158913811580e-01  # m_vals = 12
+                1.090863719290036e+00
+            ]# m_vals = 18
         
-                # theta_m for m=2:18.
-                theta = [
-                    2.220446049250313e-16  # m_vals = 1
-                    2.580956802971767e-08  # m_vals = 2
-                    3.397168839976962e-04  # m_vals = 4
-                    4.991228871115323e-02  # m_vals = 8
-                    2.996158913811580e-01  # m_vals = 12
-                    1.090863719290036e+00
-                ]# m_vals = 18
+        elseif T == Float32
         
-            elseif T == Float32
+            # theta_m for m=1:7.
+            theta = T[
+                1.192092800768788e-7   # m_vals = 1
+                5.978858893805233e-04  # m_vals = 2 
+                5.116619363445086e-02  # m_vals = 4
+                5.800524627688768e-01  # m_vals = 8
+               #7.795113374358031e-01
+               #9.951840790004457e-01
+               #1.223479542424143e+00
+                1.461661507209034e+00  # m_vals = 12
+                3.010066362817634e+00
+            ]# m_vals = 18
         
-                # theta_m for m=1:7.
-                theta = [
-                    1.192092800768788e-7   # m_vals = 1
-                    5.978858893805233e-04  # m_vals = 2 
-                    5.116619363445086e-02  # m_vals = 4
-                    5.800524627688768e-01  # m_vals = 8
-                   #7.795113374358031e-01
-                   #9.951840790004457e-01
-                   #1.223479542424143e+00
-                    1.461661507209034e+00  # m_vals = 12
-                    3.010066362817634e+00
-                ]# m_vals = 18
-        
-            else
-                throw("Input matrix element type must be Float32 or Float64")
-            end
-        
-            return theta
-        
+        else
+            throw("Input matrix element type must be Float32 or Float64")
         end
-    
-    
+        
         s = 0
     
-        theta = getThetaSet(A)
         normA = opnorm(A, 1)
     
         Tp = []
