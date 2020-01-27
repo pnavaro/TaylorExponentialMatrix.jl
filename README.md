@@ -32,10 +32,15 @@ julia> exp(A) # version from LinearAlgebra
 
 julia> using TaylorExponentialMatrix
 
-julia> expm2(A) # Version using Taylor polynomial aproximation
-number_of_scalings = s = 2
-cost = (s + method_selector) - 1 = 7
-order = m_vals[method_selector] = 18
+julia> expm2(A) # Version using Taylor polynomial aproximation (simple algorithm)
+5×5 Array{Float64,2}:
+ 1.45688   0.636229  1.1295    1.13607   0.591914
+ 1.41956   1.77159   1.2015    1.70089   0.734244
+ 0.918259  1.29852   2.42545   2.00871   1.02066
+ 1.04361   1.20838   1.88584   2.99255   0.655514
+ 0.848529  0.454553  0.838875  0.638862  2.02498
+
+julia> expm3(A) # Version using Taylor polynomial aproximation (sophisticated algorithm)
 5×5 Array{Float64,2}:
  1.45688   0.636229  1.1295    1.13607   0.591914
  1.41956   1.77159   1.2015    1.70089   0.734244
