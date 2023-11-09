@@ -2,6 +2,108 @@ using LinearAlgebra
 import ExpmV.normAm
 import LinearAlgebra:BlasFloat, checksquare
 
+"""
+    expm_params(A)
+
+expm_helper Obtain scaling parameter and order of the Taylor 
+approximant
+"""
+function expm_params(A, T)
+
+    m_vals = (1,2,4,8,12,18)
+
+    if T == Float64
+    
+        theta = T[
+            2.220446049250313e-16  # m_vals = 1
+            2.580956802971767e-08  # m_vals = 2
+            3.397168839976962e-04  # m_vals = 4
+            4.991228871115323e-02  # m_vals = 8
+            2.996158913811580e-01  # m_vals = 12
+            1.090863719290036e+00 ]# m_vals = 18
+    
+    elseif T == Float32
+    
+        theta = T[
+            1.192092800768788e-07  # m_vals = 1
+            5.978858893805233e-04  # m_vals = 2 
+            5.116619363445086e-02  # m_vals = 4
+            5.800524627688768e-01  # m_vals = 8
+            1.461661507209034e+00  # m_vals = 12
+            3.010066362817634e+00 ]# m_vals = 18
+    
+    else
+        throw("Input matrix element type must be Float32 or Float64")
+    end
+    
+    s = 0
+
+    normA = opnorm(A, 1)
+
+    Tp = Matrix{T}[]
+    scale = Int[]
+
+    # Find appropriate order:
+    push!(Tp, copy(A))
+    push!(scale, 1)
+    ## Check if degree 1 is sufficient (No info available)
+    if (normA < theta[1])
+        degree = 1
+        return s, degree, Tp, scale
+    end
+    push!(Tp, A * A)
+    push!(scale, 2)
+    if (normA < theta[2])
+        degree = 2
+        return s, degree, Tp, scale
+    end
+    if (normA < theta[3])
+        degree = 4
+        return s, degree, Tp, scale
+    end
+    # At degree 8, we could do the first estimates
+    # with pairs (2,3), (3,4), (3,5), (2,9) [Also (2,5), (2,7)]
+
+    if (normA < theta[4])
+        degree = 8
+        return s, degree, Tp, scale
+    end
+    push!(Tp, A * Tp[2])
+    push!(scale, 3)
+    if (normA < theta[5])
+        degree = 12
+        return s, degree, Tp, scale
+    end
+
+    # Otherwise degree 18
+    # Here, we only gain the pairs (3, 8) and (4, 7), 
+    # but both are not expected to
+    # yield improvements, however, we also get (2, 2k+1) until (2,17)
+    degree = 18
+    push!(Tp, Tp[3] * Tp[3])
+    push!(scale, 6)
+    d2 = norm(Tp[2], 1)^(1 / 2)
+    d3 = norm(Tp[3], 1)^(1 / 3)
+    d6 = norm(Tp[4], 1)^(1 / 6)
+    eta = min(max(d2, d3), normA)
+    quotients = minimum([d2 / normA, d3 / normA, d6 / normA])
+    if (quotients < 1 / 2^4)  ## strong decay
+        d9 = normAm(A, 9)^(1 / 9)
+        d19 = normA
+        eta = min([eta, max(d2, d9), max(d2, d19)])
+    end
+    s = max(ceil(log2(eta / theta[6])), 0)
+    if isinf(s)
+        # Overflow in ell subfunction. Revert to old estimate.
+        x = opnorm(T, 1) / theta[end]
+        t, s = significand(x) / 2, exponent(x) + 1
+        s = s - Int(t == 0.5) # adjust s if normA/theta(end) is a power of 2.
+    end
+
+    return s, degree, Tp, scale
+
+end
+
 export expm3
 
 """
@@ -18,115 +120,8 @@ The choice of order and scaling is based solely on norm(A,1)
 """
 function expm3(A::StridedMatrix{T}) where {T<:BlasFloat}
 
-    """
-        expm_params(A)
-    
-    expm_helper Obtain scaling parameter and order of the Taylor 
-    approximant
-    """
-    function expm_params(A)
-    
-        m_vals = [1 2 4 8 12 18]
-        if T == Float64
-        
-            # theta_m for m=2:18.
-            theta = T[
-                2.220446049250313e-16  # m_vals = 1
-                2.580956802971767e-08  # m_vals = 2
-                3.397168839976962e-04  # m_vals = 4
-                4.991228871115323e-02  # m_vals = 8
-                2.996158913811580e-01  # m_vals = 12
-                1.090863719290036e+00
-            ]# m_vals = 18
-        
-        elseif T == Float32
-        
-            # theta_m for m=1:7.
-            theta = T[
-                1.192092800768788e-7   # m_vals = 1
-                5.978858893805233e-04  # m_vals = 2 
-                5.116619363445086e-02  # m_vals = 4
-                5.800524627688768e-01  # m_vals = 8
-               #7.795113374358031e-01
-               #9.951840790004457e-01
-               #1.223479542424143e+00
-                1.461661507209034e+00  # m_vals = 12
-                3.010066362817634e+00
-            ]# m_vals = 18
-        
-        else
-            throw("Input matrix element type must be Float32 or Float64")
-        end
-        
-        s = 0
-    
-        normA = opnorm(A, 1)
-    
-        Tp = []
-        scale = Int[]
-    
-        # Find appropriate order:
-        push!(Tp, copy(A))
-        push!(scale, 1)
-        ## Check if degree 1 is sufficient (No info available)
-        if (normA < theta[1])
-            degree = 1
-            return s, degree, Tp, scale
-        end
-        push!(Tp, A * A)
-        push!(scale, 2)
-        if (normA < theta[2])
-            degree = 2
-            return s, degree, Tp, scale
-        end
-        if (normA < theta[3])
-            degree = 4
-            return s, degree, Tp, scale
-        end
-        # At degree 8, we could do the first estimates
-        # with pairs (2,3), (3,4), (3,5), (2,9) [Also (2,5), (2,7)]
-    
-        if (normA < theta[4])
-            degree = 8
-            return s, degree, Tp, scale
-        end
-        push!(Tp, A * Tp[2])
-        push!(scale, 3)
-        if (normA < theta[5])
-            degree = 12
-            return s, degree, Tp, scale
-        end
-    
-        # Otherwise degree 18
-        # Here, we only gain the pairs (3, 8) and (4, 7), 
-        # but both are not expected to
-        # yield improvements, however, we also get (2, 2k+1) until (2,17)
-        degree = 18
-        push!(Tp, Tp[3] * Tp[3])
-        push!(scale, 6)
-        d2 = norm(Tp[2], 1)^(1 / 2)
-        d3 = norm(Tp[3], 1)^(1 / 3)
-        d6 = norm(Tp[4], 1)^(1 / 6)
-        eta = min(max(d2, d3), normA)
-        quotients = minimum([d2 / normA, d3 / normA, d6 / normA])
-        if (quotients < 1 / 2^4)  ## strong decay
-            d9 = normAm(A, 9)^(1 / 9)
-            d19 = normA
-            eta = min([eta, max(d2, d9), max(d2, d19)])
-        end
-        s = max(ceil(log2(eta / theta[6])), 0)
-        if isinf(s)
-            # Overflow in ell subfunction. Revert to old estimate.
-            x = opnorm(T, 1) / theta[end]
-            t, s = significand(x) / 2, exponent(x) + 1
-            s = s - Int(t == 0.5) # adjust s if normA/theta(end) is a power of 2.
-        end
-    
-        return s, degree, Tp, scale
 
-    end
-
-    s, degree, Tp, scale = expm_params(A)
+    s, degree, Tp, scale = expm_params(A, T)
 
     # Rescale the powers of A appropriately.
 

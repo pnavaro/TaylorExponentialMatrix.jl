@@ -3,16 +3,16 @@ using Test
 
 @testset " simplest implementation " begin
 
-A = rand( 5, 5)
+A = rand( 100, 100)
 
-@test all( expm2(A) .≈ exp(A))
+@test expm2(A) ≈ exp(A)
 
 end
 
 @testset " sophisticated implementation " begin
 
-A = rand( 5, 5)
+A = rand( 100, 100)
 
-@test all( expm3(A) .≈ exp(A))
+@test expm3(A) ≈ exp(A)
 
 end
